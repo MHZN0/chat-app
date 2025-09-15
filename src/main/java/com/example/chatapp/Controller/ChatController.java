@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -44,15 +45,17 @@ public class ChatController {
         ).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    // Send message
+    // Send message (updated to accept JSON object)
     @PostMapping("/messages/{conversationId}/send/{userId}")
     public ResponseEntity<?> sendMessage(@PathVariable Long conversationId,
                                          @PathVariable Long userId,
-                                         @RequestBody String content) {
+                                         @RequestBody Map<String, String> body) { // ✅ updated
+
         Optional<Conversation> convoOpt = conversationRepo.findById(conversationId);
         Optional<User> userOpt = userRepo.findById(userId);
 
         if (convoOpt.isPresent() && userOpt.isPresent()) {
+            String content = body.get("content"); // extract content from JSON
             Message msg = Message.builder()
                     .content(content)
                     .sender(userOpt.get())
